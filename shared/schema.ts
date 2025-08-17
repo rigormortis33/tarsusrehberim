@@ -54,6 +54,21 @@ export const announcements = pgTable("announcements", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const outages = pgTable("outages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull(), // 'water' or 'electricity'
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  affectedAreas: text("affected_areas").array(),
+  isActive: boolean("is_active").default(true),
+  source: text("source"), // 'meski', 'toroslar-edas'
+  externalId: text("external_id"), // ID from external API
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const communityPosts = pgTable("community_posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   authorId: varchar("author_id").references(() => users.id),
@@ -98,6 +113,12 @@ export const insertCommunityPostSchema = createInsertSchema(communityPosts).omit
   comments: true,
 });
 
+export const insertOutageSchema = createInsertSchema(outages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -116,3 +137,6 @@ export type Announcement = typeof announcements.$inferSelect;
 
 export type InsertCommunityPost = z.infer<typeof insertCommunityPostSchema>;
 export type CommunityPost = typeof communityPosts.$inferSelect;
+
+export type InsertOutage = z.infer<typeof insertOutageSchema>;
+export type Outage = typeof outages.$inferSelect;

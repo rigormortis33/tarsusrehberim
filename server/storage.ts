@@ -10,7 +10,9 @@ import {
   type Announcement,
   type InsertAnnouncement,
   type CommunityPost,
-  type InsertCommunityPost
+  type InsertCommunityPost,
+  type Outage,
+  type InsertOutage
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -45,6 +47,13 @@ export interface IStorage {
   getCommunityPosts(): Promise<CommunityPost[]>;
   getRecentCommunityPosts(limit?: number): Promise<CommunityPost[]>;
   createCommunityPost(post: InsertCommunityPost): Promise<CommunityPost>;
+
+  // Outages
+  getOutages(): Promise<Outage[]>;
+  getActiveOutages(): Promise<Outage[]>;
+  getOutagesByType(type: string): Promise<Outage[]>;
+  createOutage(outage: InsertOutage): Promise<Outage>;
+  updateOutage(id: string, outage: Partial<Outage>): Promise<Outage | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -54,6 +63,7 @@ export class MemStorage implements IStorage {
   private emergencyContacts: Map<string, EmergencyContact>;
   private announcements: Map<string, Announcement>;
   private communityPosts: Map<string, CommunityPost>;
+  private outages: Map<string, Outage>;
 
   constructor() {
     this.users = new Map();
@@ -62,6 +72,7 @@ export class MemStorage implements IStorage {
     this.emergencyContacts = new Map();
     this.announcements = new Map();
     this.communityPosts = new Map();
+    this.outages = new Map();
 
     // Initialize with sample data
     this.initializeSampleData();
@@ -173,6 +184,24 @@ export class MemStorage implements IStorage {
     for (const announcement of sampleAnnouncements) {
       await this.createAnnouncement(announcement);
     }
+
+    // Sample outages
+    const sampleOutages: InsertOutage[] = [
+      {
+        type: "water",
+        title: "Tarsus Su Kesintisi",
+        description: "Gülek Mahallesi ve çevresinde su kesintisi yaşanacaktır.",
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 6 * 60 * 60 * 1000), // 6 hours later
+        affectedAreas: ["Gülek Mahallesi", "Çelebili Mahallesi"],
+        isActive: true,
+        source: "meski"
+      }
+    ];
+
+    for (const outage of sampleOutages) {
+      await this.createOutage(outage);
+    }
   }
 
   // User methods
@@ -191,6 +220,7 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id,
+      location: insertUser.location || null,
       createdAt: new Date()
     };
     this.users.set(id, user);
@@ -219,6 +249,10 @@ export class MemStorage implements IStorage {
     const business: Business = {
       ...insertBusiness,
       id,
+      description: insertBusiness.description || null,
+      phone: insertBusiness.phone || null,
+      imageUrl: insertBusiness.imageUrl || null,
+      isPremium: insertBusiness.isPremium || null,
       rating: 0,
       reviewCount: 0,
       createdAt: new Date()
@@ -240,7 +274,12 @@ export class MemStorage implements IStorage {
 
   async createBusRoute(insertRoute: InsertBusRoute): Promise<BusRoute> {
     const id = randomUUID();
-    const route: BusRoute = { ...insertRoute, id };
+    const route: BusRoute = { 
+      ...insertRoute, 
+      id,
+      estimatedTime: insertRoute.estimatedTime || null,
+      isActive: insertRoute.isActive || null
+    };
     this.busRoutes.set(id, route);
     return route;
   }
@@ -258,7 +297,12 @@ export class MemStorage implements IStorage {
 
   async createEmergencyContact(insertContact: InsertEmergencyContact): Promise<EmergencyContact> {
     const id = randomUUID();
-    const contact: EmergencyContact = { ...insertContact, id };
+    const contact: EmergencyContact = { 
+      ...insertContact, 
+      id,
+      description: insertContact.description || null,
+      isAvailable247: insertContact.isAvailable247 || null
+    };
     this.emergencyContacts.set(id, contact);
     return contact;
   }
@@ -279,6 +323,7 @@ export class MemStorage implements IStorage {
     const announcement: Announcement = {
       ...insertAnnouncement,
       id,
+      isUrgent: insertAnnouncement.isUrgent || null,
       createdAt: new Date()
     };
     this.announcements.set(id, announcement);
@@ -301,12 +346,64 @@ export class MemStorage implements IStorage {
     const post: CommunityPost = {
       ...insertPost,
       id,
+      title: insertPost.title || null,
+      authorId: insertPost.authorId || null,
+      neighborhood: insertPost.neighborhood || null,
       likes: 0,
       comments: 0,
       createdAt: new Date()
     };
     this.communityPosts.set(id, post);
     return post;
+  }
+
+  // Outage methods
+  async getOutages(): Promise<Outage[]> {
+    return Array.from(this.outages.values())
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+  }
+
+  async getActiveOutages(): Promise<Outage[]> {
+    return Array.from(this.outages.values()).filter(
+      outage => outage.isActive
+    );
+  }
+
+  async getOutagesByType(type: string): Promise<Outage[]> {
+    return Array.from(this.outages.values()).filter(
+      outage => outage.type === type && outage.isActive
+    );
+  }
+
+  async createOutage(insertOutage: InsertOutage): Promise<Outage> {
+    const id = randomUUID();
+    const outage: Outage = {
+      ...insertOutage,
+      id,
+      startDate: insertOutage.startDate || null,
+      endDate: insertOutage.endDate || null,
+      affectedAreas: insertOutage.affectedAreas || null,
+      isActive: insertOutage.isActive || null,
+      source: insertOutage.source || null,
+      externalId: insertOutage.externalId || null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.outages.set(id, outage);
+    return outage;
+  }
+
+  async updateOutage(id: string, updateData: Partial<Outage>): Promise<Outage | undefined> {
+    const outage = this.outages.get(id);
+    if (!outage) return undefined;
+    
+    const updatedOutage: Outage = {
+      ...outage,
+      ...updateData,
+      updatedAt: new Date()
+    };
+    this.outages.set(id, updatedOutage);
+    return updatedOutage;
   }
 }
 

@@ -6,7 +6,8 @@ import {
   insertBusRouteSchema,
   insertEmergencyContactSchema,
   insertAnnouncementSchema,
-  insertCommunityPostSchema 
+  insertCommunityPostSchema,
+  insertOutageSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -129,6 +130,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(post);
     } catch (error) {
       res.status(400).json({ message: "Invalid community post data" });
+    }
+  });
+
+  // Outages
+  app.get("/api/outages", async (req, res) => {
+    try {
+      const { type } = req.query;
+      const outages = type
+        ? await storage.getOutagesByType(type as string)
+        : await storage.getActiveOutages();
+      res.json(outages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch outages" });
+    }
+  });
+
+  app.post("/api/outages", async (req, res) => {
+    try {
+      const validatedData = insertOutageSchema.parse(req.body);
+      const outage = await storage.createOutage(validatedData);
+      res.status(201).json(outage);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid outage data" });
+    }
+  });
+
+  // MESKİ Water Outages Integration
+  app.get("/api/outages/meski/sync", async (req, res) => {
+    try {
+      const response = await fetch('https://online.meski.gov.tr/meta/subscription/interruptions');
+      if (!response.ok) {
+        throw new Error('MESKİ API request failed');
+      }
+      
+      const meskiData = await response.json();
+      const syncedOutages = [];
+
+      for (const interruption of meskiData) {
+        if (interruption.isActive === 1) {
+          const outage = await storage.createOutage({
+            type: "water",
+            title: "Su Kesintisi",
+            description: interruption.description,
+            startDate: interruption.planningStartDate ? new Date(interruption.planningStartDate) : null,
+            endDate: interruption.finishDate ? new Date(interruption.finishDate) : null,
+            affectedAreas: interruption.districtList || [],
+            isActive: true,
+            source: "meski",
+            externalId: interruption.id?.toString()
+          });
+          syncedOutages.push(outage);
+        }
+      }
+
+      res.json({ 
+        message: `${syncedOutages.length} MESKİ outage synchronized`,
+        outages: syncedOutages 
+      });
+    } catch (error) {
+      console.error('MESKİ sync error:', error);
+      res.status(500).json({ message: "Failed to sync MESKİ data" });
     }
   });
 

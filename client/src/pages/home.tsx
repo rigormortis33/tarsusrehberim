@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Megaphone, QrCode } from "lucide-react";
+import { MapPin, Megaphone, QrCode, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/layout/app-header";
@@ -9,7 +9,7 @@ import { BusInfo } from "@/components/transport/bus-info";
 import { PostCard } from "@/components/community/post-card";
 import { QUICK_ACTIONS } from "@/lib/constants";
 import { Link } from "wouter";
-import type { Business, BusRoute, Announcement, CommunityPost } from "@shared/schema";
+import type { Business, BusRoute, Announcement, CommunityPost, Outage } from "@shared/schema";
 
 export default function Home() {
   const { data: featuredBusinesses, isLoading: businessesLoading } = useQuery<Business[]>({
@@ -26,6 +26,10 @@ export default function Home() {
 
   const { data: communityPosts, isLoading: postsLoading } = useQuery<CommunityPost[]>({
     queryKey: ['/api/community-posts?limit=3'],
+  });
+
+  const { data: activeOutages, isLoading: outagesLoading } = useQuery<Outage[]>({
+    queryKey: ['/api/outages'],
   });
 
   return (
@@ -154,6 +158,39 @@ export default function Home() {
               )}
             </CardContent>
           </Card>
+
+          {/* Active Outages */}
+          {activeOutages && activeOutages.length > 0 && (
+            <Card className="shadow-material mb-4">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle className="w-4 h-4 text-destructive" />
+                  <span className="font-medium">Aktif Kesintiler</span>
+                </div>
+                
+                <div className="space-y-2">
+                  {activeOutages.slice(0, 2).map((outage) => (
+                    <div 
+                      key={outage.id} 
+                      className="border-l-4 border-destructive pl-3 py-2"
+                      data-testid={`outage-${outage.id}`}
+                    >
+                      <h4 className="text-sm font-medium flex items-center gap-2">
+                        {outage.type === 'water' ? '💧' : '⚡'} {outage.title}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">{outage.description}</p>
+                    </div>
+                  ))}
+                </div>
+                
+                <Link href="/outages">
+                  <Button variant="ghost" className="text-destructive text-sm font-medium h-auto p-1 mt-2" data-testid="button-view-all-outages">
+                    Tüm Kesintileri Gör
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
         </section>
 
         {/* Featured Businesses */}

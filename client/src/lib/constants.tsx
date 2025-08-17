@@ -5,7 +5,8 @@ import {
   Users, 
   MoreHorizontal,
   Home,
-  Bus
+  Bus,
+  Zap
 } from "lucide-react";
 
 export const NAVIGATION_ITEMS = [
@@ -29,16 +30,16 @@ export const NAVIGATION_ITEMS = [
     path: "/business"
   },
   {
-    id: "community",
-    label: "Topluluk",
-    icon: Users,
-    path: "/community"
+    id: "outages",
+    label: "Kesintiler",
+    icon: Zap,
+    path: "/outages"
   },
   {
-    id: "more",
-    label: "Daha",
-    icon: MoreHorizontal,
-    path: "/more"
+    id: "emergency",
+    label: "Acil",
+    icon: Phone,
+    path: "/emergency"
   }
 ];
 
@@ -60,12 +61,12 @@ export const QUICK_ACTIONS = [
     path: "/business"
   },
   {
-    id: "emergency",
-    title: "Acil",
-    subtitle: "Numaralar",
-    icon: Phone,
+    id: "outages",
+    title: "Kesintiler",
+    subtitle: "Su & Elektrik",
+    icon: Zap,
     color: "destructive",
-    path: "/emergency"
+    path: "/outages"
   },
   {
     id: "community",

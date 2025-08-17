@@ -8,6 +8,7 @@ import Transport from "@/pages/transport";
 import BusinessPage from "@/pages/business";
 import Community from "@/pages/community";
 import Emergency from "@/pages/emergency";
+import Outages from "@/pages/outages";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/business" component={BusinessPage} />
       <Route path="/community" component={Community} />
       <Route path="/emergency" component={Emergency} />
+      <Route path="/outages" component={Outages} />
       <Route component={NotFound} />
     </Switch>
   );

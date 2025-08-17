@@ -16,7 +16,7 @@ export default function BusinessPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   const { data: businesses, isLoading } = useQuery<Business[]>({
-    queryKey: selectedCategory ? ['/api/businesses', { category: selectedCategory }] : ['/api/businesses'],
+    queryKey: selectedCategory && selectedCategory !== "all" ? ['/api/businesses', { category: selectedCategory }] : ['/api/businesses'],
   });
 
   const filteredBusinesses = businesses?.filter((business) =>
@@ -73,7 +73,7 @@ export default function BusinessPage() {
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tüm Kategoriler</SelectItem>
+                <SelectItem value="all">Tüm Kategoriler</SelectItem>
                 {BUSINESS_CATEGORIES.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -82,7 +82,7 @@ export default function BusinessPage() {
               </SelectContent>
             </Select>
             
-            {selectedCategory && (
+            {selectedCategory && selectedCategory !== "all" && (
               <Button 
                 variant="outline" 
                 size="sm"
@@ -96,7 +96,7 @@ export default function BusinessPage() {
         </section>
 
         {/* Featured Businesses */}
-        {!searchTerm && !selectedCategory && (
+        {!searchTerm && (!selectedCategory || selectedCategory === "all") && (
           <section className="p-4">
             <h3 className="text-lg font-medium mb-4 text-foreground">Öne Çıkan İşletmeler</h3>
             
