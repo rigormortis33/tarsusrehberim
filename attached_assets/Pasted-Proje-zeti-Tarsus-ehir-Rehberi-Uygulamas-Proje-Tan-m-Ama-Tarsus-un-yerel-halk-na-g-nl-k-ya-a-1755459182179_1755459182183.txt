@@ -1,0 +1,203 @@
+Proje Özeti: Tarsus Şehir Rehberi Uygulaması
+Proje Tanımı
+
+Amaç: Tarsus’un yerel halkına günlük yaşamda kolaylık sağlamak (ulaşım, esnaf rehberi, acil bilgiler) ve turistlere şehri keşfetme imkânı sunmak (tarihi yerler, AR turlar, yöresel lezzetler). Uygulama, “şehir süper-app”i gibi hibrit bir platform olacak; hem pratik hem kültürel.
+Hedef Kitle: Öncelik yerel halk (öğrenciler, esnaf, aileler), ikincil olarak turistler.
+Kapsam: Hobi proje olarak başlayacak, MVP (Minimum Viable Product) ile hızlı çıkış yapacak, yerel bağlantılarla (belediye, esnaf odaları) büyüyerek sürdürülebilir olacak.
+İsim (Kararsız): TarsusGo (önerilen, yerel ve pratik), TarsusTap (genç, dinamik), TarsusExp (turizm odaklı, deneyim vurgulu). TarsusGo şu an en uygunu, ama sen karar vereceksin.
+
+Özellikler (Modüler Yapı)
+Uygulama modüler olacak; kullanıcılar sadece istedikleri özellikleri yükleyecek, böylece hafif ve performanslı kalacak. Özellikler öncelik sırasına göre gruplanmış:
+
+MVP (İlk Sürüm – 2-3 Ayda Çıkış):
+
+Ulaşım:
+
+Otobüs/dolmuş durakları, canlı konum takibi (Tarsus Belediyesi’nden GPS verisi).
+QR kodla duraktan otobüs geliş süresi gösterme.
+Taksi/dolmuş fiyat tahmini.
+
+
+Esnaf Rehberi:
+
+Restoran, otel, dükkân, kuaför vb. filtrelenebilir liste (örneğin, “Tarsus böreği nerede?”).
+Ücretsiz temel profil, premium “öne çıkan esnaf” seçeneği.
+
+
+Günlük Asistan:
+
+Acil numaralar, nöbetçi eczaneler.
+Belediye duyuruları (su kesintisi, etkinlikler).
+
+
+Topluluk Özellikleri:
+
+Mahalle forumu (örneğin, “Bu akşam etkinlik var mı?”).
+“Tarsus SOS”: Acil durum destek ağı (gönüllü yardım, tesisatçı çağırma).
+
+
+
+
+İkinci Aşama (3-6 Ay Sonra):
+
+Etkinlik Takvimi: Festival, konser, tiyatro, spor etkinlikleri; bildirimlerle hatırlatma.
+Yöresel Lezzet Haritası: Tarsus böreği, fındık lahmacun, şalgam tanıtımı; tarif videoları, yerel işletmelerden sipariş.
+Yerel Pazar Platformu: Çiftçilerin ürün paylaşımı (örneğin, “Bugün 20 kg çilek var”), direkt sipariş.
+
+
+Üçüncü Aşama (6-12 Ay Sonra):
+
+AR Turlar: Cleopatra Kapısı, St. Paul Kuyusu gibi yerlerde artırılmış gerçeklik turları (örneğin, antik dönem animasyonları).
+Kültür Pasaportu: Rotları tamamlayanlara rozetler, yerel işletmelerde kuponlar (örneğin, ücretsiz şalgam).
+Tarsus Sesleri/Hikâye Arşivi: Yerel efsaneler, podcast’ler, kısa videolar.
+
+
+Ek Özellikler:
+
+Çok Dilli Destek: Türkçe, İngilizce, Arapça; offline mod (haritalar, temel bilgiler).
+Erişilebilirlik: Sesli rehberler (görme engelliler için), yüksek kontrastlı arayüz.
+Oyunlaştırma: Rozetler, puanlar (örneğin, “5 esnaf ziyareti yap, indirim kazan”).
+
+
+
+Programlama Dili ve Teknoloji Yığını
+Tek başına geliştireceksin, bu yüzden öğrenmesi kolay, ücretsiz/open-source ve çapraz platform araçlar öneriyorum:
+
+Mobil Uygulama:
+
+Framework: Flutter (Dart dili).
+
+Neden? Tek kodla Android ve iOS app’i geliştirilir, hızlı ve performanslı. Google Maps ve ARCore/ARKit entegrasyonu kolay.
+Paketler: google_maps_flutter (harita), ar_flutter_plugin (AR), firebase_core (veritabanı), flutter_bloc (state yönetimi).
+
+
+Alternatif: React Native (JavaScript). JS biliyorsan kolay, ama AR ve performans için Flutter daha iyi.
+IDE: VS Code (ücretsiz, Flutter destekli).
+Test: Android Studio emulator (yerel test için).
+
+
+Web Sitesi (Opsiyonel, admin paneli veya basit rehber için):
+
+Framework: Next.js (React tabanlı).
+
+Neden? SEO dostu, hızlı, esnaf profillerini yönetmek için ideal.
+Ek: Tailwind CSS (stil), Vercel (ücretsiz hosting).
+
+
+Alternatif: Flutter Web (mobil app’le aynı kod, ama SEO için Next.js daha iyi).
+
+
+Backend:
+
+Framework: Node.js (Express.js) veya Python (FastAPI).
+
+Neden? Node.js hızlı, JS tabanlı; FastAPI ise Python’la basit API’ler için. REST API ile mobil/web veri çekecek.
+
+
+Authentication: Firebase Auth (ücretsiz, kullanıcı girişi için).
+Ödeme (Premium özellikler için): Stripe.
+
+
+Veritabanı:
+
+Ana: MySQL (mevcut Hostinger veritabanınla uyumlu).
+
+Neden? Esnaf listeleri, ulaşım verileri için yapılandırılmış veri uygun.
+
+
+Alternatif: Firebase Firestore (NoSQL, gerçek zamanlı veri için, örneğin etkinlik takvimi). PostgreSQL (GIS desteği, harita verileri için) de düşünülebilir.
+Yedekleme: Hostinger’da düzenli MySQL dump ile backup.
+
+
+Diğer Araçlar:
+
+Harita: Google Maps API (ücretsiz tier var).
+Versiyon Kontrolü: GitHub (ücretsiz, kod yönetimi).
+Geliştirme Süresi: MVP için 2-3 ay (hafta sonları çalışarak).
+
+
+
+Modüller ve Önceliklendirme
+Modüler yapı, uygulamanın hafif kalmasını sağlayacak. Kullanıcılar sadece istedikleri modülü yükleyecek (lazy loading). Öncelik sırası:
+
+MVP Modülleri:
+
+Ulaşım (otobüs takibi, QR kod).
+Esnaf Rehberi (liste, filtreleme).
+Günlük Asistan (acil numaralar, duyurular).
+Topluluk (basit forum, SOS).
+
+
+İkinci Aşama:
+
+Etkinlik Takvimi.
+Yöresel Lezzet Haritası.
+Yerel Pazar Platformu.
+
+
+Üçüncü Aşama:
+
+AR Turlar.
+Kültür Pasaportu.
+Tarsus Sesleri.
+
+
+
+Altyapı ve Domain
+
+Domain:
+
+Öneri: tarsusgo.com (veya tarsustap.com, tarsusexp.com). .com SEO ve güvenilirlik için en iyisi. Alternatif: .co (modern), .city (yerel).
+Nereden alınır?: Hostinger (mevcut hesabın var, uygun fiyat, Türkçe destek).
+
+İlk yıl: ~$5.99-$8.99, yenileme ~$10.99-$14.58.
+Ücretsiz WHOIS gizliliği ve SSL.
+
+
+Test için: Mevcut Hostinger sitende subdomain (örneğin, tarsusgo.mevcutsite.com) aç, sonra ayrı domain al.
+Alternatif: Porkbun (daha ucuz, ~$5.91 ilk yıl, ama Türkçe destek sınırlı).
+
+
+Hosting:
+
+Başlangıç: Hostinger shared hosting (mevcut MySQL veritabanınla çalışır).
+Büyüme için: Hostinger Cloud veya Firebase (bulut tabanlı, ölçeklenebilir).
+Not: Büyüdüğünde AWS veya Google Cloud’a geçiş kolay, MySQL dump ile veri taşınır.
+
+
+
+Gelir Modeli
+
+Ücretsiz Temel Özellikler: Ulaşım, esnaf rehberi, günlük asistan ücretsiz.
+Premium: Esnaf için “öne çıkan profil” reklamları, turistler için ücretli AR turları.
+İş Birlikleri: Tarsus Belediyesi (GPS verileri, duyurular), Mersin Üniversitesi (AR içerik, stajyer), Esnaf Odaları (kampanyalar).
+Hibeler: Kültür Bakanlığı veya AB turizm hibeleri.
+
+Telif ve Hukuki Notlar
+
+TarsusGo ve Trendyol Go: Hizmetler farklı (şehir rehberi vs. teslimat), coğrafi isim (Tarsus) riski düşürüyor. Yine de Türk Patent ve Marka Kurumu’nda sorgula.
+Logo/Slogan: Tarsus’un simgeleriyle (şelale, antik kapı) özgün logo; “Tarsus’u Keşfet” gibi slogan.
+Veri Güvenliği: GDPR uyumlu, konum verileri anonim, kullanıcı kaydı opsiyonel.
+
+Başlangıç Planı
+
+İsim Kararı: TarsusGo (önerilen), TarsusTap veya TarsusExp. Domain müsaitliğini Hostinger’da kontrol et.
+Flutter ile Prototip: VS Code’da Flutter kur, google_maps_flutter ile basit bir harita modülü yap (örneğin, Tarsus Şelalesi’ni işaretle).
+Veritabanı: Mevcut Hostinger MySQL’ini kullan, esnaf listesi için basit bir tablo oluştur.
+Test: Android Studio emulator’da test et, Tarsus’taki arkadaşlarına beta göster.
+Belediye Bağlantısı: Ulaşım verileri için Tarsus Belediyesi’yle iletişime geç.
+
+Sana Öneriler
+
+İlk Adım: Flutter’ı indir, VS Code’da bir “Hello World” app’i yap (1-2 saatlik tutorial’lar var). YouTube’da “Flutter for Beginners 2025” videolarına bak.
+Domain: Hostinger’da tarsusgo.com’u ara, müsaitse al. Subdomain’le (tarsusgo.mevcutsite.com) başla.
+Kodlama Planı: İlk 1 ay sadece ulaşım modülüne odaklan (örneğin, statik otobüs durakları listesi). Firebase ile gerçek zamanlı veri test et.
+Destek: X’te Flutter veya Tarsus geliştiricilerini tarayıp bağlantı kurabilirim. İstersen Türkçe Flutter topluluklarını önereyim.
+
+Sana Sorular
+
+TarsusGo’da karar kıldın mı, yoksa Tap/Exp için hâlâ düşünüyor musun? İsim netleşirse, domain aramasını hemen yapabilirim.
+Programlamaya Flutter’la mı başlayacaksın, yoksa başka bir dil/framework’te (örneğin, React Native) deneyimin var mı?
+İlk modül olarak neyi kodlamak istersin (örneğin, ulaşım mı, esnaf rehberi mi)? Buna göre kod örneği veya tutorial önerebilirim.
+
+Kafan hâlâ karışıksa, sadece bir modüle (örneğin, otobüs durakları) odaklanarak başlayalım, adım adım gidelim. 😊 İstersen X’te Tarsus’la ilgili yerel ihtiyaçları tarayıp hangi özelliğin en çok talep gördüğünü analiz edeyim. Ne dersin,下一步 ne yapalım? 🚀
