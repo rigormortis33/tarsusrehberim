@@ -1,5 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { storage } from "./storage";
 import { 
   insertBusinessSchema,
@@ -7,10 +9,185 @@ import {
   insertEmergencyContactSchema,
   insertAnnouncementSchema,
   insertCommunityPostSchema,
-  insertOutageSchema
+  insertOutageSchema,
+  userLoginSchema,
+  businessLoginSchema,
+  userRegisterSchema,
+  businessRegisterSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Authentication routes
+  app.post("/api/users/register", async (req, res) => {
+    try {
+      const userData = userRegisterSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Kullanıcı zaten mevcut" });
+      }
+      
+      // Hash password
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      
+      // Create user
+      const user = await storage.createUser({
+        ...userData,
+        password: hashedPassword
+      });
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user.id, type: 'user' },
+        process.env.JWT_SECRET || 'default-secret',
+        { expiresIn: '24h' }
+      );
+      
+      res.json({ 
+        token, 
+        user: { 
+          id: user.id, 
+          username: user.username, 
+          email: user.email, 
+          name: user.name,
+          phone: user.phone,
+          location: user.location
+        } 
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(400).json({ message: "Kayıt işlemi başarısız" });
+    }
+  });
+
+  app.post("/api/users/login", async (req, res) => {
+    try {
+      const loginData = userLoginSchema.parse(req.body);
+      
+      // Find user
+      const user = await storage.getUserByEmail(loginData.email);
+      if (!user) {
+        return res.status(401).json({ message: "Geçersiz email veya şifre" });
+      }
+      
+      // Check password
+      const isValidPassword = await bcrypt.compare(loginData.password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Geçersiz email veya şifre" });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user.id, type: 'user' },
+        process.env.JWT_SECRET || 'default-secret',
+        { expiresIn: '24h' }
+      );
+      
+      res.json({ 
+        token, 
+        user: { 
+          id: user.id, 
+          username: user.username, 
+          email: user.email, 
+          name: user.name,
+          phone: user.phone,
+          location: user.location
+        } 
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(400).json({ message: "Giriş işlemi başarısız" });
+    }
+  });
+
+  app.post("/api/businesses/register", async (req, res) => {
+    try {
+      const businessData = businessRegisterSchema.parse(req.body);
+      
+      // Check if business already exists
+      const existingBusiness = await storage.getBusinessByEmail(businessData.email);
+      if (existingBusiness) {
+        return res.status(400).json({ message: "İşletme zaten mevcut" });
+      }
+      
+      // Hash password
+      const hashedPassword = await bcrypt.hash(businessData.password, 10);
+      
+      // Create business
+      const business = await storage.createBusiness({
+        ...businessData,
+        password: hashedPassword
+      });
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { businessId: business.id, type: 'business' },
+        process.env.JWT_SECRET || 'default-secret',
+        { expiresIn: '24h' }
+      );
+      
+      res.json({ 
+        token, 
+        business: { 
+          id: business.id, 
+          name: business.name, 
+          email: business.email, 
+          category: business.category,
+          description: business.description,
+          address: business.address,
+          phone: business.phone,
+          contactPerson: business.contactPerson
+        } 
+      });
+    } catch (error) {
+      console.error("Business registration error:", error);
+      res.status(400).json({ message: "İşletme kayıt işlemi başarısız" });
+    }
+  });
+
+  app.post("/api/businesses/login", async (req, res) => {
+    try {
+      const loginData = businessLoginSchema.parse(req.body);
+      
+      // Find business
+      const business = await storage.getBusinessByEmail(loginData.email);
+      if (!business) {
+        return res.status(401).json({ message: "Geçersiz email veya şifre" });
+      }
+      
+      // Check password
+      const isValidPassword = await bcrypt.compare(loginData.password, business.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Geçersiz email veya şifre" });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { businessId: business.id, type: 'business' },
+        process.env.JWT_SECRET || 'default-secret',
+        { expiresIn: '24h' }
+      );
+      
+      res.json({ 
+        token, 
+        business: { 
+          id: business.id, 
+          name: business.name, 
+          email: business.email, 
+          category: business.category,
+          description: business.description,
+          address: business.address,
+          phone: business.phone,
+          contactPerson: business.contactPerson
+        } 
+      });
+    } catch (error) {
+      console.error("Business login error:", error);
+      res.status(400).json({ message: "İşletme giriş işlemi başarısız" });
+    }
+  });
   
   // Businesses
   app.get("/api/businesses", async (req, res) => {

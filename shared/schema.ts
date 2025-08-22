@@ -7,7 +7,9 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
+  password: text("password").notNull(),
   name: text("name").notNull(),
+  phone: text("phone"),
   location: text("location"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -19,6 +21,9 @@ export const businesses = pgTable("businesses", {
   description: text("description"),
   address: text("address").notNull(),
   phone: text("phone"),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  contactPerson: text("contact_person").notNull(),
   rating: integer("rating").default(0),
   reviewCount: integer("review_count").default(0),
   imageUrl: text("image_url"),
@@ -118,6 +123,20 @@ export const insertOutageSchema = createInsertSchema(outages).omit({
   createdAt: true,
   updatedAt: true,
 });
+
+// Auth schemas
+export const userLoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+export const businessLoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+export const userRegisterSchema = insertUserSchema;
+export const businessRegisterSchema = insertBusinessSchema;
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;

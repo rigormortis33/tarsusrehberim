@@ -20,12 +20,14 @@ export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
 
   // Businesses
   getBusinesses(): Promise<Business[]>;
   getBusinessesByCategory(category: string): Promise<Business[]>;
   getFeaturedBusinesses(): Promise<Business[]>;
+  getBusinessByEmail(email: string): Promise<Business | undefined>;
   createBusiness(business: InsertBusiness): Promise<Business>;
 
   // Bus Routes
@@ -79,6 +81,30 @@ export class MemStorage implements IStorage {
   }
 
   private async initializeSampleData() {
+    // Sample users for testing
+    const sampleUsers: InsertUser[] = [
+      {
+        username: "test_user",
+        email: "test@tarsusgo.com",
+        password: "$2b$10$KFcDbzwGwQY98Z1Ppt8ZYuWrKYsIKggO17an6BhON.Lg36tUMrgUC", // 123456
+        name: "Test Kullanıcısı",
+        phone: "+90 555 123 4567",
+        location: "Tarsus, Mersin"
+      },
+      {
+        username: "ahmet_tarsus",
+        email: "ahmet@example.com",
+        password: "$2b$10$KFcDbzwGwQY98Z1Ppt8ZYuWrKYsIKggO17an6BhON.Lg36tUMrgUC", // 123456
+        name: "Ahmet Yılmaz",
+        phone: "+90 555 987 6543",
+        location: "Merkez, Tarsus"
+      }
+    ];
+
+    for (const user of sampleUsers) {
+      await this.createUser(user);
+    }
+
     // Sample businesses
     const sampleBusinesses: InsertBusiness[] = [
       {
@@ -87,6 +113,9 @@ export class MemStorage implements IStorage {
         description: "Geleneksel Tarsus böreği ve ev yemekleri",
         address: "Cumhuriyet Mahallesi, Atatürk Caddesi No: 45",
         phone: "+90 324 123 4567",
+        email: "info@tarsusboregi.com",
+        password: "$2b$10$KFcDbzwGwQY98Z1Ppt8ZYuWrKYsIKggO17an6BhON.Lg36tUMrgUC", // 123456
+        contactPerson: "Mehmet Öztürk",
         imageUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200&h=120&fit=crop",
         isPremium: true
       },
@@ -96,6 +125,9 @@ export class MemStorage implements IStorage {
         description: "Tarsus Şelalesi manzaralı kahve ve tatlı",
         address: "Şelale Mahallesi, Şelale Caddesi No: 12",
         phone: "+90 324 987 6543",
+        email: "info@selalekafe.com",
+        password: "$2b$10$KFcDbzwGwQY98Z1Ppt8ZYuWrKYsIKggO17an6BhON.Lg36tUMrgUC", // 123456
+        contactPerson: "Ayşe Yılmaz",
         imageUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=200&h=120&fit=crop",
         isPremium: true
       }
@@ -132,31 +164,94 @@ export class MemStorage implements IStorage {
     // Sample emergency contacts
     const sampleEmergencyContacts: InsertEmergencyContact[] = [
       {
-        name: "Polis",
-        category: "Güvenlik",
-        phone: "155",
-        description: "Acil polis yardımı",
-        isAvailable247: true
-      },
-      {
-        name: "İtfaiye",
-        category: "Güvenlik",
-        phone: "110",
-        description: "Yangın ve kurtarma",
-        isAvailable247: true
-      },
-      {
-        name: "Ambulans",
-        category: "Sağlık",
+        name: "Acil Çağrı Merkezi (TÜM ACİL DURUMLAR)",
+        category: "Acil",
         phone: "112",
-        description: "Acil sağlık hizmetleri",
+        description: "Ambulans, İtfaiye, Polis, Jandarma - Tüm acil durumlar için TEK NUMARA",
+        isAvailable247: true
+      },
+      {
+        name: "Sahil Güvenlik",
+        category: "Güvenlik",
+        phone: "158",
+        description: "Deniz kurtarma ve güvenlik",
+        isAvailable247: true
+      },
+      {
+        name: "Orman Yangını",
+        category: "Güvenlik",
+        phone: "177",
+        description: "Orman yangını ihbar hattı",
+        isAvailable247: true
+      },
+      {
+        name: "AFAD",
+        category: "Güvenlik",
+        phone: "122",
+        description: "Afet ve Acil Durum Yönetimi",
+        isAvailable247: true
+      },
+      {
+        name: "Doğalgaz Acil",
+        category: "Altyapı",
+        phone: "187",
+        description: "Doğalgaz kaçağı ve acil durumlar",
+        isAvailable247: true
+      },
+      {
+        name: "Elektrik Arıza (TEDAŞ)",
+        category: "Altyapı",
+        phone: "186",
+        description: "Elektrik kesintisi ve arıza bildirimi",
         isAvailable247: true
       },
       {
         name: "Tarsus Devlet Hastanesi",
         category: "Sağlık",
-        phone: "+90 324 241 1000",
-        description: "Ana hastane",
+        phone: "0 (324) 613 47 00",
+        description: "Tarsus'un ana devlet hastanesi. Fax: 0 (324) 613 23 58",
+        isAvailable247: true
+      },
+      {
+        name: "Tarsus Özel Yaşam Hastanesi",
+        category: "Sağlık", 
+        phone: "+90 324 614 14 14",
+        description: "Özel hastane - Acil servis",
+        isAvailable247: true
+      },
+      {
+        name: "Tarsus Belediyesi",
+        category: "Belediye",
+        phone: "+90 324 614 27 00",
+        description: "Belediye hizmetleri ve şikayetleri",
+        isAvailable247: false
+      },
+      {
+        name: "Tarsus Kaymakamlık",
+        category: "Resmi",
+        phone: "+90 324 614 10 26",
+        description: "İlçe kaymakamlığı",
+        isAvailable247: false
+      },
+      {
+        name: "TASKİ (Su Arıza)",
+        category: "Altyapı",
+        phone: "+90 324 336 12 85",
+        description: "Su kesintisi ve arıza bildirimi",
+        isAvailable247: true
+      },
+      {
+        name: "Alo 153 Çevre Hattı",
+        category: "Çevre",
+        phone: "153",
+        description: "Çevre kirliliği ve şikayetleri",
+        isAvailable247: true
+      },
+      {
+        name: "Tarsus Emniyet Müdürlüğü",
+        category: "Güvenlik",
+        phone: "+90 324 614 10 41",
+        description: "Tarsus polis merkezi (acil olmayan durumlar)",
         isAvailable247: true
       }
     ];
@@ -215,11 +310,18 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.email === email,
+    );
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
     const user: User = { 
       ...insertUser, 
       id,
+      phone: insertUser.phone || null,
       location: insertUser.location || null,
       createdAt: new Date()
     };
@@ -241,6 +343,12 @@ export class MemStorage implements IStorage {
   async getFeaturedBusinesses(): Promise<Business[]> {
     return Array.from(this.businesses.values()).filter(
       business => business.isPremium
+    );
+  }
+
+  async getBusinessByEmail(email: string): Promise<Business | undefined> {
+    return Array.from(this.businesses.values()).find(
+      (business) => business.email === email,
     );
   }
 
@@ -407,4 +515,12 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { MySQLStorage } from "./MySQLStorage";
+
+// Veritabanı türü seçimi (process.env.STORAGE_TYPE değerine göre)
+// Üretim ortamında MySQL kullanacağız, geliştirme ortamında bellek depolama kullanabiliriz
+const useMySQL = process.env.STORAGE_TYPE === 'mysql' || process.env.NODE_ENV === 'production';
+
+export const storage: IStorage = useMySQL 
+  ? new MySQLStorage() 
+  : new MemStorage();

@@ -75,39 +75,79 @@ export default function Emergency() {
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-medium">Acil Numaralar</h2>
-              <p className="text-sm opacity-90">Hızlı Erişim ve Yardım</p>
+              <h2 className="text-lg font-medium">Acil Durumlar</h2>
+              <p className="text-sm opacity-90">112 - Tek Numara, Tüm Acil Durumlar</p>
             </div>
           </div>
         </section>
 
         {/* Quick Emergency Numbers */}
         <section className="p-4">
-          <h3 className="text-lg font-medium mb-4 text-foreground">Genel Acil Numaralar</h3>
+          <h3 className="text-lg font-medium mb-4 text-foreground">Acil Çağrı Sistemi</h3>
           
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {[
-              { name: "Polis", number: "155", color: "bg-blue-600", icon: Shield },
-              { name: "İtfaiye", number: "110", color: "bg-orange-600", icon: Flame },
-              { name: "Ambulans", number: "112", color: "bg-red-600", icon: Heart },
-              { name: "AFAD", number: "122", color: "bg-yellow-600", icon: AlertTriangle }
-            ].map((emergency) => {
-              const Icon = emergency.icon;
-              return (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h4 className="font-medium text-blue-900 mb-2">ÖNEMLİ BİLGİ</h4>
+                <p className="text-sm text-blue-800">
+                  Türkiye'de <strong>2020 yılından</strong> itibaren tüm acil durumlar için 
+                  <strong className="bg-red-600 text-white px-2 py-1 rounded mx-1">112</strong> 
+                  numarası kullanılmaktadır.
+                </p>
+                <p className="text-xs text-blue-700 mt-2">
+                  112'yi aradığınızda size en yakın ambulans, itfaiye veya polis ekibi yönlendirilir.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-3 mb-6">
+            {/* Ana Acil Numara */}
+            <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-lg p-4 text-white">
+              <div className="text-center">
+                <Heart className="w-8 h-8 mx-auto mb-2" />
+                <h4 className="text-lg font-bold mb-1">ACİL DURUM</h4>
+                <div className="text-3xl font-bold mb-2">112</div>
+                <p className="text-sm opacity-90">Tüm acil durumlar için TEK NUMARA</p>
+                <p className="text-xs opacity-75 mt-1">Ambulans • İtfaiye • Polis • Jandarma</p>
                 <Button
-                  key={emergency.number}
-                  onClick={() => handleCall(emergency.number)}
-                  className={`h-20 flex flex-col items-center gap-2 text-white ${emergency.color} hover:opacity-90`}
-                  data-testid={`button-emergency-${emergency.number}`}
+                  onClick={() => handleCall("112")}
+                  className="mt-3 bg-white text-red-600 hover:bg-gray-100 font-bold"
+                  size="lg"
                 >
-                  <Icon className="w-6 h-6" />
-                  <div className="text-center">
-                    <div className="font-medium text-sm">{emergency.name}</div>
-                    <div className="text-xs">{emergency.number}</div>
-                  </div>
+                  <Phone className="w-4 h-4 mr-2" />
+                  112'yi ARA
                 </Button>
-              );
-            })}
+              </div>
+            </div>
+
+            {/* Diğer Özel Numaralar */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { name: "Sahil Güvenlik", number: "158", color: "bg-blue-600", icon: Shield },
+                { name: "Orman Yangını", number: "177", color: "bg-green-600", icon: Flame },
+                { name: "AFAD", number: "122", color: "bg-orange-600", icon: AlertTriangle }
+              ].map((emergency) => {
+                const Icon = emergency.icon;
+                return (
+                  <Button
+                    key={emergency.number}
+                    onClick={() => handleCall(emergency.number)}
+                    className={`h-20 flex flex-col items-center gap-1 text-white ${emergency.color} hover:opacity-90`}
+                    data-testid={`button-emergency-${emergency.number}`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <div className="text-center">
+                      <div className="font-medium text-xs">{emergency.name}</div>
+                      <div className="text-xs">{emergency.number}</div>
+                    </div>
+                  </Button>
+                );
+              })}
+            </div>
           </div>
         </section>
 
@@ -208,10 +248,11 @@ export default function Emergency() {
             </CardHeader>
             <CardContent className="space-y-2">
               <ul className="text-xs text-yellow-800 space-y-1">
-                <li>• Acil durumda sakin kalın ve net konuşun</li>
-                <li>• Konumunuzu ve durumu açık bir şekilde belirtin</li>
-                <li>• Mümkünse yaralıları hareket ettirmeyin</li>
-                <li>• Uzmanlar gelene kadar güvenli bir yerde bekleyin</li>
+                <li>• <strong>112</strong>'yi arayın - Tüm acil durumlar için tek numara</li>
+                <li>• Konumunuzu net belirtin: "Tarsus, [sokak/mahalle adı]"</li>
+                <li>• Durumu kısaca ve açık bir şekilde anlatın</li>
+                <li>• Telefonu kapatmayın, operatörün sorularını yanıtlayın</li>
+                <li>• Yaralıları hareket ettirmeyin, güvenli bir yerde bekleyin</li>
               </ul>
             </CardContent>
           </Card>
